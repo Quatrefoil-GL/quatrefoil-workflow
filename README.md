@@ -20,7 +20,7 @@ mkdir -p ~/.config/calcit/modules/ && cd ~/.config/calcit/modules/
 && git clone https://github.com/Quatrefoil-GL/quatrefoil.git
 && git clone https://github.com/mvc-works/pointed-prompt.git
 
-cr --emit-js -1
+calcit calcit.cirru js
 yarn vite
 ```
 
