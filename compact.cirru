@@ -54,7 +54,7 @@
       :defs $ {}
         |dev? $ %{} :CodeEntry (:doc |)
           :code $ quote
-            def dev? $ = "\"dev" (get-env "\"mode" "\"release")
+            def dev? $ = "\"dev" (option:unwrap-or (get-env "\"mode") "\"release")
       :ns $ %{} :CodeEntry (:doc |)
         :code $ quote (ns app.config)
     |app.main $ %{} :FileEntry
