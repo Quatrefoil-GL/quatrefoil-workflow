@@ -12,11 +12,11 @@
           :code $ quote
             defcomp comp-container (store)
               let
-                  states $ :states store
-                  cursor $ :cursor states
-                  state $ either (:data states)
+                  states $ field store :states
+                  cursor $ field states :cursor
+                  state $ either (field states :data)
                     {} $ :tab :portal
-                  tab $ :tab state
+                  tab $ field state :tab
                 scene ({}) (comp-demo)
                   ambient-light $ {} (:color 0x666666) (:intensity 8)
                   ; point-light $ {} (:color 0xffffff) (:intensity 1.4) (:distance 200)
@@ -49,6 +49,12 @@
                   :click $ fn (e d!) (d! :canvas nil)
               point-light $ {} (:color 0xffff55) (:intensity 10) (:distance 200)
                 :position $ [] -10 20 0
+          :examples $ []
+          :schema $ :: 'Dynamic
+        |field $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defn field (value key)
+              option:unwrap-or (get value key) nil
           :examples $ []
           :schema $ :: 'Dynamic
       :ns $ %{} 'NsEntry (:doc |)
@@ -86,12 +92,24 @@
                   reset! *store store
           :examples $ []
           :schema $ :: 'Dynamic
+        |ffi-object $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defn ffi-object (value) (unsafe-coerce value JsObject)
+          :examples $ []
+          :schema $ :: 'Dynamic
+        |js-number $ %{} 'CodeEntry (:doc |)
+          :code $ quote
+            defn js-number (value) (unsafe-coerce value Number)
+          :examples $ []
+          :schema $ :: 'Dynamic
         |main! $ %{} 'CodeEntry (:doc |)
           :code $ quote
             defn main! ()
               when dev? (load-console-formatter!) (println "|Run in dev mode")
               set-perspective-camera! $ {} (:fov 45)
-                :aspect $ / js/window.innerWidth js/window.innerHeight
+                :aspect $ /
+                  js-number $ .-innerWidth (ffi-object js/window)
+                  js-number $ .-innerHeight (ffi-object js/window)
                 :near 0.1
                 :far 1000
                 :position $ [] 0 0 100
