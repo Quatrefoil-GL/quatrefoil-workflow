@@ -45,31 +45,30 @@ jobs:
     - name: Resolve immutable dependencies
       run: |
         set -euo pipefail
-        caps --ci
+        caps --strict --ci
         yarn install --immutable
         caps verify --toolchain
 
     - name: Validate Calcit snapshot and types
       run: |
         set -euo pipefail
-        test "$(calcit --version)" = "0.27.0"
         calcit calcit.cirru edit format
         git diff --exit-code -- calcit.cirru
         calcit calcit.cirru fix --workflow strict --verify --format edn
         calcit calcit.cirru --check-only
-        calcit calcit.cirru analyze check-public \
+        calcit calcit.cirru --check-only \
           --ns app.comp.container \
           --ns app.config \
           --ns app.main \
           --ns app.updater \
           --summary-only --format json
-        calcit calcit.cirru analyze check-types --summary-only --format json
+        calcit calcit.cirru analyze weak-types --only coverage --summary-only --format json
         calcit calcit.cirru analyze weak-types \
           --only schema-dynamic,code-dynamic \
           --intent unresolved \
           --summary-only --format json
-        calcit calcit.cirru analyze deprecated --summary-only --format json
-        calcit calcit.cirru analyze dynamic-methods
+        calcit calcit.cirru analyze weak-types --only deprecated-call --summary-only --format json
+        calcit calcit.cirru analyze weak-types --only dynamic-method
 
     - name: Select CDN asset path
       id: asset-path

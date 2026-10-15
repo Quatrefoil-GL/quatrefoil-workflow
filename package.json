@@ -21,9 +21,8 @@
     "vite": "^8.3.1"
   },
   "dependencies": {
-    "@calcit/procs": "0.27.0",
+    "@calcit/procs": "0.29.3",
     "@calcit/std": "^0.0.3",
-    "@quamolit/touch-control": "^0.0.13",
     "@quatrefoil/utils": "^0.0.3",
     "hsluv": "^1.0.1",
     "meshline": "^3.3.1",
