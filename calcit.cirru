@@ -80,7 +80,9 @@
       :defs $ {} $ 'dev?
         %{} 'CodeEntry (:doc |)
           :code $ quote $ def dev?
-            = |dev $ option:unwrap-or (get-env |mode) |release
+            = |dev $
+              get-env |mode
+              , .unwrap-or |release
           :examples $ []
           :schema $ :: 'Bool
       :ns $ %{} 'NsEntry (:doc |)
@@ -116,7 +118,9 @@
               :position $ [] 0 0 100
             inject-tree-methods
             let
-                canvas-el $ option:unwrap $ query-selector |canvas
+                canvas-el $
+                  query-selector |canvas
+                  , .unwrap
               init-renderer! canvas-el $ {} $ :background 0x110022
             render-app!
             add-watch! *store :changes $ fn (store prev) (render-app!)
@@ -157,7 +161,7 @@
             quatrefoil.core :refer $ render-canvas! *global-tree clear-cache! init-renderer! handle-key-event handle-control-events
             app.comp.container :refer $ comp-container
             |three :as THREE
-            touch-control.core :refer $ render-control! control-states start-control-loop! clear-control-loop!
+            touch-control.core :refer $ render-control! start-control-loop! clear-control-loop!
             |bottom-tip :default hud!
             |./calcit.build-errors :default build-errors
             app.config :refer $ dev?
