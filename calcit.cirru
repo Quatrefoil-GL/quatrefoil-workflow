@@ -29,7 +29,7 @@
                 :event $ {} $ :click
                   fn (e d!)
                     hint-fn $ Fn Dynamic
-                      Fn Dynamic Dynamic $ -> Unit
+                      Fn Tag Dynamic $ -> Unit
                       -> Unit
                     d! :demo nil
               sphere $ {} (:radius 8)
@@ -38,7 +38,7 @@
                 :event $ {} $ :click
                   fn (e d!)
                     hint-fn $ Fn Dynamic
-                      Fn Dynamic Dynamic $ -> Unit
+                      Fn Tag Dynamic $ -> Unit
                       -> Unit
                     d! :canvas nil
               group ({})
@@ -51,7 +51,7 @@
                 :event $ {} $ :click
                   fn (e d!)
                     hint-fn $ Fn Dynamic
-                      Fn Dynamic Dynamic $ -> Unit
+                      Fn Tag Dynamic $ -> Unit
                       -> Unit
                     d! :canvas nil
               point-light $ {} (:color 0xffff55) (:intensity 10) (:distance 200)
@@ -87,7 +87,7 @@
             if (list? op)
               recur :states $ [] op op-data
               let
-                  store $ updater @*store op op-data
+                  store $ if (tag? op) (updater @*store op op-data) @*store
                 ; js/console.log |Dispatch: op op-data store
                 reset! *store store
                 , &unit
@@ -156,7 +156,7 @@
               :states $ update-states store op-data
               _ store
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) Dynamic Dynamic
+          :schema $ quote $ Fn (Map Tag Dynamic) Tag Dynamic
             -> $ Map Tag Dynamic
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.updater
