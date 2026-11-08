@@ -11,7 +11,7 @@
     'app.comp.container $ %{} 'FileEntry
       :defs $ {}
         'comp-container $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defcomp comp-container (store)
+          :code $ quote $ defcomp comp-container ()
             scene ({}) (comp-demo)
               ambient-light $ {} (:color 0x666666) (:intensity 8)
               ; point-light $ {} (:color 0xffffff) (:intensity 1.4) (:distance 200)
@@ -19,7 +19,7 @@
               ; point-light $ {} (:color 0xffffff) (:intensity 2) (:distance 200)
                 :position $ [] 0 60 0
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) (-> quatrefoil.schema/Component) (:features :js-ffi)
+          :schema $ quote $ Fn (-> quatrefoil.schema/Component) (:features :js-ffi)
         'comp-demo $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-demo ()
             group ({})
@@ -27,20 +27,20 @@
                 :position $ [] -40 0 0
                 :material $ {} (:kind :mesh-lambert) (:color 0x808080) (:opacity 0.6)
                 :event $ {} $ :click
-                  fn (e d!)
-                    hint-fn $ Fn Dynamic
-                      Fn Tag Dynamic $ -> Unit
+                  fn (_event d!)
+                    hint-fn $ Fn JsObject
+                      Fn app.updater/DemoOp Unit $ -> Unit
                       -> Unit
-                    d! :demo nil
+                    d! (app.updater/DemoOp :demo) &unit
               sphere $ {} (:radius 8)
                 :position $ [] 10 0 0
                 :material $ {} (:kind :mesh-lambert) (:opacity 0.6) (:color 0x9050c0)
                 :event $ {} $ :click
-                  fn (e d!)
-                    hint-fn $ Fn Dynamic
-                      Fn Tag Dynamic $ -> Unit
+                  fn (_event d!)
+                    hint-fn $ Fn JsObject
+                      Fn app.updater/DemoOp Unit $ -> Unit
                       -> Unit
-                    d! :canvas nil
+                    d! (app.updater/DemoOp :canvas) &unit
               group ({})
                 text $ {} (:text |Quatrefoil) (:size 4) (:depth 2)
                   :position $ [] -30 0 20
@@ -49,11 +49,11 @@
                 :position $ [] -10 20 0
                 :material $ {} (:kind :mesh-basic) (:color 0xffff55) (:opacity 0.8) (:transparent true)
                 :event $ {} $ :click
-                  fn (e d!)
-                    hint-fn $ Fn Dynamic
-                      Fn Tag Dynamic $ -> Unit
+                  fn (_event d!)
+                    hint-fn $ Fn JsObject
+                      Fn app.updater/DemoOp Unit $ -> Unit
                       -> Unit
-                    d! :canvas nil
+                    d! (app.updater/DemoOp :canvas) &unit
               point-light $ {} (:color 0xffff55) (:intensity 10) (:distance 200)
                 :position $ [] -10 20 0
           :examples $ []
@@ -62,7 +62,7 @@
         :code $ quote $ ns app.comp.container
           :require
             quatrefoil.alias :refer $ group box sphere point-light ambient-light perspective-camera scene text
-            quatrefoil.core :refer $ defcomp >>
+            quatrefoil.core :refer $ defcomp
     'app.config $ %{} 'FileEntry
       :defs $ {} $ 'dev?
         %{} 'CodeEntry (:doc |)
@@ -83,16 +83,15 @@
           :examples $ []
           :schema $ quote $ Ref (Map Tag Dynamic)
         'dispatch! $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn dispatch! (op op-data)
-            if (list? op)
-              recur :states $ [] op op-data
-              let
-                  store $ if (tag? op) (updater @*store op op-data) @*store
-                ; js/console.log |Dispatch: op op-data store
-                reset! *store store
-                , &unit
+          :code $ quote $ defn dispatch! (op payload)
+            match (try-decode-map-as op app.updater/SceneOp)
+              (:ok operation)
+                reset! *store $ updater @*store operation payload
+              (:err message)
+                if (list? op) (raise message) (reset! *store @*store)
+            , &unit
           :examples $ []
-          :schema $ quote $ Fn Dynamic Dynamic (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn Op Payload (-> Unit) (:generics Op Payload)
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! ()
             when dev? (load-console-formatter!) (println "|Run in dev mode")
@@ -131,7 +130,7 @@
           :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
         'render-app! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-app! () (; println "|Render app:")
-            render-canvas! (comp-container @*store) dispatch!
+            render-canvas! (comp-container) dispatch!
           :examples $ []
           :schema $ quote $ Fn (-> Unit)
       :ns $ %{} 'NsEntry (:doc |)
@@ -149,15 +148,29 @@
             js-ffi.browser :refer $ viewport-width viewport-height query-selector
             app.updater :refer $ updater
     'app.updater $ %{} 'FileEntry
-      :defs $ {} $ 'updater
-        %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn updater (store op op-data)
-            match op
-              :states $ update-states store op-data
-              _ store
+      :defs $ {}
+        'DemoOp $ %{} 'CodeEntry
+          :doc "|The demo click examples send operations without application data."
+          :code $ quote $ defenum DemoOp (:demo) (:canvas)
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) Tag Dynamic
+          :schema $ quote EnumDef
+        'SceneOp $ %{} 'CodeEntry
+          :doc "|Typed demo operations, existing Tag operations, or a direct cursor."
+          :code $ quote $ defunion SceneOp DemoOp Tag (List Tag)
+          :examples $ []
+          :schema $ quote UnionDef
+        'updater $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn updater (store op payload)
+            match op
+              (DemoOp _) store
+              (Tag tag)
+                if (= tag :states) (update-states store payload) store
+              (List cursor)
+                update-states store $ [] cursor payload
+          :examples $ []
+          :schema $ quote $ Fn (Map Tag Dynamic) app.updater/SceneOp Payload
             -> $ Map Tag Dynamic
+            :generics Payload
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.updater
           :require $ quatrefoil.cursor :refer $ update-states
