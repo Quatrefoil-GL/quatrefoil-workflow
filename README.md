@@ -10,9 +10,9 @@ Demo http://r.tiye.me/Quatrefoil-GL/quatrefoil-workflow/
 PR 的 COS/CDN 目录按编号/run/attempt 隔离，Vite base 与上传 prefix 同源；生产
 `Quatrefoil-GL/quatrefoil-workflow/` 前缀与原 web-assets rsync 路径不变。
 上传按事件/分支排队，job/上传分别限制为 15/10 分钟，现有类型门禁保留。
-### Calcit 0.38.0 使用说明
+### Calcit 0.40.0 使用说明
 
-使用正式 Calcit 与 `@calcit/procs` 0.38.0，重新安装依赖并生成 JS。
+使用正式 Calcit 与 `@calcit/procs` 0.40.0，重新安装依赖并生成 JS。
 示例点击通过 `DemoOp` 发送 `:demo` 或 `:canvas`，第二个参数是 `&unit`。
 复制过旧点击回调的项目可以继续传原 Tag，新增业务操作时在 `updater` 里明确处理。
 静态的 `comp-container` 无需传入 store。添加依赖状态的组件时，由应用传入具体的状态类型。
