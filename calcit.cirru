@@ -168,7 +168,7 @@
               (List cursor)
                 update-states store $ [] cursor payload
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) app.updater/SceneOp Payload
+          :schema $ quote $ Fn (Map Tag Dynamic) SceneOp Payload
             -> $ Map Tag Dynamic
             :generics Payload
       :ns $ %{} 'NsEntry (:doc |)
