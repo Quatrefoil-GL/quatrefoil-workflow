@@ -78,10 +78,9 @@
       :defs $ {}
         '*store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defref *store
-            {} $ :states $ {}
-              :cursor $ []
+            app.updater/Store :states $ {} $ :cursor ([])
           :examples $ []
-          :schema $ quote $ Ref (Map Tag Dynamic)
+          :schema $ quote $ Ref app.updater/Store
         'dispatch! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn dispatch! (op payload)
             match (try-decode-map-as op app.updater/SceneOp)
@@ -159,18 +158,32 @@
           :code $ quote $ defunion SceneOp DemoOp Tag (List Tag)
           :examples $ []
           :schema $ quote UnionDef
+        'Store $ %{} 'CodeEntry
+          :doc "|The template's store owns one extensible Quatrefoil state tree."
+          :code $ quote $ defstruct Store
+            :states $ Map Tag Dynamic
+          :examples $ []
+          :schema $ quote StructDef
+        'update-store-states $ %{} 'CodeEntry
+          :doc "|Adapt the Quatrefoil state pair to the template's Store."
+          :code $ quote $ defn update-store-states (store pair)
+            decode-map-as
+              update-states
+                {} $ :states $ :states store
+                , pair
+              , Store
+          :examples $ []
+          :schema $ quote $ Fn Store Pair (-> Store) (:generics Pair)
         'updater $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn updater (store op payload)
             match op
               (DemoOp _) store
               (Tag tag)
-                if (= tag :states) (update-states store payload) store
+                if (= tag :states) (update-store-states store payload) store
               (List cursor)
-                update-states store $ [] cursor payload
+                update-store-states store $ [] cursor payload
           :examples $ []
-          :schema $ quote $ Fn (Map Tag Dynamic) SceneOp Payload
-            -> $ Map Tag Dynamic
-            :generics Payload
+          :schema $ quote $ Fn Store SceneOp Payload (-> Store) (:generics Payload)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.updater
           :require $ quatrefoil.cursor :refer $ update-states
