@@ -119,7 +119,7 @@
             if
               not $ nil? build-errors
               hud! |error build-errors
-              do (hud! |ok~ nil) (clear-cache!) (clear-control-loop!) (handle-control-events) (remove-watch! *store :changes)
+              do (hud! |ok~ |) (clear-cache!) (clear-control-loop!) (handle-control-events) (remove-watch! *store :changes)
                 add-watch! *store :changes $ fn (store prev) (render-app!)
                 render-app!
                 set! js/window.onkeydown handle-key-event
