@@ -6,13 +6,13 @@ Quatrefoil Workflow
 
 Demo http://r.tiye.me/Quatrefoil-GL/quatrefoil-workflow/
 
-前端部署使用 COS Action 正式 v1.2.0 的 `public-base-url` 内置 verify，无额外校验脚本。
+前端部署使用 COS Action 正式 v1.3.0 的 `public-base-url` 内置 verify，无额外校验脚本。
 PR 的 COS/CDN 目录按编号/run/attempt 隔离，Vite base 与上传 prefix 同源；生产
 `Quatrefoil-GL/quatrefoil-workflow/` 前缀与原 web-assets rsync 路径不变。
 上传按事件/分支排队，job/上传分别限制为 15/10 分钟，现有类型门禁保留。
-### Calcit 0.45.1 使用说明
+### Calcit 0.46.0 使用说明
 
-使用正式 Calcit 与 `@calcit/procs` 0.45.1、Quatrefoil 0.3.9 及配套正式依赖，重新安装依赖并生成 JS。
+使用正式 Calcit 与 `@calcit/procs` 0.46.0、Quatrefoil 0.3.10 及配套正式依赖，重新安装依赖并生成 JS。
 227 个定义和 13 个模板公开定义的严格检查及构建通过；项目没有附带测试，本轮尚未复验浏览器交互。
 示例点击通过 `DemoOp` 发送 `:demo` 或 `:canvas`，第二个参数是 `&unit`。
 复制过旧点击回调的项目可以继续传原 Tag，新增业务操作时在 `updater` 里明确处理。
