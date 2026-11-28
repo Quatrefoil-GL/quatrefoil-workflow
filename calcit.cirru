@@ -83,14 +83,10 @@
           :schema $ quote $ Ref app.updater/Store
         'dispatch! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn dispatch! (op payload)
-            match (try-decode-map-as op app.updater/SceneOp)
-              (:ok operation)
-                reset! *store $ updater @*store operation payload
-              (:err message)
-                if (list? op) (raise message) (reset! *store @*store)
+            reset! *store $ updater @*store op payload
             , &unit
           :examples $ []
-          :schema $ quote $ Fn Op Payload (-> Unit) (:generics Op Payload) (:features :state)
+          :schema $ quote $ Fn app.updater/SceneOp Payload (-> Unit) (:generics Payload) (:features :state)
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! ()
             when dev? (load-console-formatter!) (println "|Run in dev mode")
@@ -116,9 +112,7 @@
           :schema $ quote $ Fn (-> Unit) (:features :io :js-ffi :state)
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reload! ()
-            if
-              not $ nil? build-errors
-              hud! |error build-errors
+            if (js-present? build-errors) (hud! |error build-errors)
               do (hud! |ok~ |) (clear-cache!) (clear-control-loop!) (handle-control-events) (remove-watch! *store :changes)
                 add-watch! *store :changes $ fn (store prev) (render-app!)
                 render-app!
